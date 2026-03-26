@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agenc-core — Project Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --accent: #e63946;
+    --amber: #f4a261;
+    --green: #2a9d8f;
+    --muted: #4a4a6a;
+    --text: #e0e0f0;
+    --text-dim: #8888aa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(230,57,70,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(230,57,70,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 56px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 10px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  .repo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .repo-link:hover { color: var(--text-dim); border-color: var(--muted); }
+
+  /* Verdict */
+  .verdict {
+    background: linear-gradient(135deg, rgba(230,57,70,0.08), rgba(230,57,70,0.02));
+    border: 1px solid rgba(230,57,70,0.3);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 40px;
+    animation: fadeDown 0.6s 0.1s ease both;
+  }
+
+  .verdict-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .verdict p {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  /* Stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .val-red { color: var(--accent); }
+  .val-amber { color: var(--amber); }
+  .val-green { color: var(--green); }
+
+  /* Sections */
+  .section {
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section:nth-child(4) { animation-delay: 0.15s; }
+  .section:nth-child(5) { animation-delay: 0.2s; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .icon-green { background: rgba(42,157,143,0.15); }
+  .icon-red { background: rgba(230,57,70,0.15); }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .cards { display: grid; gap: 12px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--muted); }
+
+  .card-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .dot-green { background: var(--green); }
+  .dot-red { background: var(--accent); }
+
+  .card-content strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .card-content p {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* Highlight */
+  .highlight {
+    background: rgba(244,162,97,0.06);
+    border: 1px solid rgba(244,162,97,0.25);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.5s 0.25s ease both;
+  }
+
+  .highlight-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--amber);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .highlight p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-dim);
+  }
+
+  .highlight p strong { color: var(--amber); font-weight: 500; }
+
+  /* Final */
+  .final {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 36px;
+    text-align: center;
+    animation: fadeUp 0.5s 0.35s ease both;
+  }
+
+  .final-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .meter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .meter-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .meter-bar {
+    width: 220px;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--amber));
+    width: 65%;
+    animation: expand 1s 0.9s ease both;
+    transform-origin: left;
+  }
+
+  .final p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.85;
+    max-width: 580px;
+    margin: 0 auto;
+  }
+
+  .final p strong { color: var(--text); font-weight: 500; }
+
+  /* Footer */
+  .footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes expand {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: 1fr; }
+    .footer { flex-direction: column; gap: 8px; text-align: center; }
+    .meter { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="tag">Technical Report</div>
+    <h1>Is <span>agenc-core</span> a real project?</h1>
+    <p class="subtitle">A deep-dive analysis of the tetsuo-ai GitHub repository</p>
+    <a href="https://github.com/tetsuo-ai/agenc-core" class="repo-link" target="_blank">
+      → github.com/tetsuo-ai/agenc-core
+    </a>
+  </div>
+
+  <div class="verdict">
+    <div class="verdict-label">Summary Verdict</div>
+    <p>
+      The project is <strong>not pure nonsense</strong> — there is real code and a genuine architectural structure.
+      But it is <strong>massively overstated</strong>: built primarily by AI, tied to a crypto token,
+      and with near-zero community traction.
+    </p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value val-red">2 ⭐</div>
+      <div class="stat-label">GitHub Stars</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value val-amber">48</div>
+      <div class="stat-label">Commits</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value val-green">4</div>
+      <div class="stat-label">Contributors</div>
+    </div>
+  </div>
+
+  <!-- Positive -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-green">✓</div>
+      <h2>Signs of Real Work</h2>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-dot dot-green"></div>
+        <div class="card-content">
+          <strong>Full multi-layered structure</strong>
+          <p>runtime/, mcp/, web/, mobile/, packages/, tests/, contracts/ — not empty scaffolding. Actual TypeScript code at 92.5% of the codebase.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-dot dot-green"></div>
+        <div class="card-content">
+          <strong>A real release was shipped</strong>
+          <p>v0.1.0 was published on March 18, 2026 — there is a concrete deliverable, not just roadmap talk.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-dot dot-green"></div>
+        <div class="card-content">
+          <strong>Detailed architectural documentation</strong>
+          <p>ADRs, module maps, docs/architecture/ with runtime-layers and product-contract guides — this takes real time to produce.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Red flags -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon icon-red">✗</div>
+      <h2>Red Flags</h2>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-dot dot-red"></div>
+        <div class="card-content">
+          <strong>Claude is a listed contributor</strong>
+          <p>github.com/claude appears as one of the four contributors — the AI is committing code directly to the repository, not just assisting.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-dot dot-red"></div>
+        <div class="card-content">
+          <strong>Tied to $TETSUO on Solana</strong>
+          <p>The smart contract address is embedded in the README. Classic crypto-marketing pattern: an impressive-looking technical project to prop up a token.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-dot dot-red"></div>
+        <div class="card-content">
+          <strong>Near-zero community engagement</strong>
+          <p>Only 2 stars despite the apparent scale. No evidence anyone outside the team is actually using this project.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-dot dot-red"></div>
+        <div class="card-content">
+          <strong>AI-written release notes</strong>
+          <p>The update descriptions pack 5–7 concepts into single sentences and use perfectly consistent jargon like "canonical execution kernel" — unmistakable AI output.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insight -->
+  <div class="highlight">
+    <div class="highlight-label">Key Insight</div>
+    <p>
+      This is a textbook example of a new phenomenon: <strong>AI-generated codebases for crypto marketing purposes.</strong>
+      A team of 1–2 people uses Claude to write the code, documentation, and release notes,
+      creating the illusion of a large, well-organized project.
+      <strong>The project looks far bigger than it actually is,</strong> and its real-world utility remains completely unproven.
+    </p>
+  </div>
+
+  <!-- Final verdict -->
+  <div class="final">
+    <div class="final-label">Final Assessment</div>
+    <div class="meter">
+      <span class="meter-label">nonsense</span>
+      <div class="meter-bar"><div class="meter-fill"></div></div>
+      <span class="meter-label">legitimate</span>
+    </div>
+    <p>
+      The project sits in a grey zone: <strong>real code + suspicious marketing intent + total AI dependency.</strong>
+      It is not outright fraud, but it is systematic inflation.
+      Its practical value to an outside developer is effectively zero for now —
+      no real users, no community, no independent validation.
+    </p>
+  </div>
+
+  <div class="footer">
+    <span>Analysis: Claude / Anthropic</span>
+    <span>Source: github.com/tetsuo-ai/agenc-core</span>
+    <span>March 2026</span>
+  </div>
+
+</div>
+</body>
+</html>
